@@ -40,7 +40,8 @@ namecheap.prototype = {
             options[k] = params[k];
         options.DomainName = domain;
         options.Years = years;
-        return instance.command('domains.create', options, callback);
+        // POST: https://www.namecheap.com/support/api/methods/domains/create.aspx
+        return instance.command('domains.create', options, callback, 'POST');
       },
       getContacts: function(domain, callback) {
         if(!domain)
@@ -583,11 +584,12 @@ namecheap.prototype = {
       method: method || 'GET',
       uri: this.endpoint
     };
-    params = qs.stringify(params);
-    if('POST' == method)
-      options.body = params;
-    else
+    if('POST' == method) {
+      options.form = params;
+    } else {
+      params = qs.stringify(params);
       options.uri += '?' + params;
+    }
     request(options, function(err, res, body) {
       body = parser.toJson(body, { object: true });
       err = body.ApiResponse.Errors.Error;
